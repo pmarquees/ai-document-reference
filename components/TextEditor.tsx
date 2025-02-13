@@ -17,6 +17,9 @@ import { InsertPanel } from "./InsertPanel"
 import { CommandMenu } from "./CommandMenu"
 import { AIChat } from "./AIChat"
 import type { ElementType, TextEditorElement } from "../types/textEditor"
+import { HelpCircle } from "lucide-react"
+import { HelpModal } from "./HelpModal"
+import { Button } from "@/components/ui/button"
 
 const STORAGE_KEY = 'ai-text-editor-documents'
 
@@ -35,6 +38,7 @@ export function TextEditor() {
   const [aiChatOpen, setAiChatOpen] = useState(false)
   const [editableContent, setEditableContent] = useState("")
   const [documents, setDocuments] = useState<Document[]>([])
+  const [helpModalOpen, setHelpModalOpen] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -106,7 +110,7 @@ export function TextEditor() {
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <div className="flex h-screen">
+      <div className="flex h-screen relative">
         <div className="flex-1 flex flex-col overflow-hidden">
           <DocumentTitle title={documentTitle} onTitleChange={setDocumentTitle} />
           <SortableContext items={elements} strategy={verticalListSortingStrategy}>
@@ -121,28 +125,42 @@ export function TextEditor() {
           </SortableContext>
         </div>
         <InsertPanel onInsert={addElement} />
+
+        <Button
+          variant="outline"
+          size="icon"
+          className="fixed bottom-4 right-4 rounded-full"
+          onClick={() => setHelpModalOpen(true)}
+        >
+          <HelpCircle className="h-5 w-5" />
+        </Button>
+
+        <HelpModal 
+          open={helpModalOpen} 
+          onClose={() => setHelpModalOpen(false)} 
+        />
+
+        {commandMenuOpen && (
+          <CommandMenu
+            open={commandMenuOpen}
+            onClose={() => setCommandMenuOpen(false)}
+            onSelect={(type) => {
+              addElement(type)
+              setCommandMenuOpen(false)
+            }}
+            onPersonioAI={handlePersonioAI}
+            position={commandMenuPosition}
+          />
+        )}
+
+        {aiChatOpen && (
+          <AIChat 
+            onClose={() => setAiChatOpen(false)} 
+            onInsertText={handleInsertAIText} 
+            documents={documents}
+          />
+        )}
       </div>
-
-      {commandMenuOpen && (
-        <CommandMenu
-          open={commandMenuOpen}
-          onClose={() => setCommandMenuOpen(false)}
-          onSelect={(type) => {
-            addElement(type)
-            setCommandMenuOpen(false)
-          }}
-          onPersonioAI={handlePersonioAI}
-          position={commandMenuPosition}
-        />
-      )}
-
-      {aiChatOpen && (
-        <AIChat 
-          onClose={() => setAiChatOpen(false)} 
-          onInsertText={handleInsertAIText} 
-          documents={documents}
-        />
-      )}
     </DndContext>
   )
 }
