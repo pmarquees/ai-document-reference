@@ -1,5 +1,5 @@
 export type ElementType = {
-  type: 'heading' | 'paragraph' | 'list'
+  type: 'heading' | 'paragraph' | 'list' | 'text' | 'header' | 'subheader' | 'image'
   // ... other properties
 }
 
