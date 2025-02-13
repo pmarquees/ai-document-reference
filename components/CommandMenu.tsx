@@ -45,19 +45,19 @@ export function CommandMenu({ open, onClose, onSelect, onPersonioAI, position }:
         <Command.List>
           <Command.Group heading="Insert">
             <Command.Item
-              onSelect={() => onSelect("heading")}
+              onSelect={() => onSelect({ type: 'heading' })}
               className="px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer"
             >
               Add Heading
             </Command.Item>
             <Command.Item
-              onSelect={() => onSelect("paragraph")}
+              onSelect={() => onSelect({ type: 'paragraph' })}
               className="px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer"
             >
               Add Paragraph
             </Command.Item>
             <Command.Item
-              onSelect={() => onSelect("list")}
+              onSelect={() => onSelect({ type: 'list' })}
               className="px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer"
             >
               Add List

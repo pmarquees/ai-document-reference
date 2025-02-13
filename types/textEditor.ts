@@ -1,4 +1,7 @@
-export type ElementType = "text" | "header" | "subheader" | "image" | "file" | "report" | "workflow" | "card" | "list"
+export type ElementType = {
+  type: 'heading' | 'paragraph' | 'list'
+  // ... other properties
+}
 
 export interface TextEditorElement {
   id: string
