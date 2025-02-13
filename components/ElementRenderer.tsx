@@ -2,6 +2,7 @@ import type { TextEditorElement } from "../types/textEditor"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import Image from 'next/image'
 
 interface ElementRendererProps {
   element: TextEditorElement
@@ -59,7 +60,13 @@ export function ElementRenderer({ element, updateElement, deleteElement }: Eleme
               }}
             />
             {element.content && (
-              <img src={element.content || "/placeholder.svg"} alt="Uploaded" className="mt-2 max-w-full h-auto" />
+              <Image 
+                src={element.content} 
+                alt="Uploaded content"
+                width={500}
+                height={300}
+                className="max-w-full h-auto"
+              />
             )}
           </div>
         )

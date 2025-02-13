@@ -4,9 +4,14 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(req: Request) {
+interface GenerateRequest {
+  prompt: string
+}
+
+export async function POST(request: Request) {
   try {
-    const { prompt } = await req.json();
+    const body = (await request.json()) as GenerateRequest
+    const { prompt } = body;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -18,11 +23,14 @@ export async function POST(req: Request) {
     const text = completion.choices[0]?.message?.content || '';
     return Response.json({ text });
 
-  } catch (error: any) {
-    console.error('OpenAI API error:', error.message);
-    return Response.json(
-      { error: error.message || 'Failed to generate text' },
-      { status: error.status || 500 }
-    );
+  } catch (error) {
+    if (error instanceof Error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+      })
+    }
+    return new Response(JSON.stringify({ error: 'An unknown error occurred' }), {
+      status: 500,
+    })
   }
 } 

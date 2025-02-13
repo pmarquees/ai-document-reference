@@ -3,6 +3,7 @@
 import { Command } from "cmdk"
 import { type ElementType } from "../types/textEditor"
 import { Bot } from "lucide-react"
+import { useEffect } from "react"
 
 interface CommandMenuProps {
   open: boolean
@@ -14,6 +15,16 @@ interface CommandMenuProps {
 
 export function CommandMenu({ open, onClose, onSelect, onPersonioAI, position }: CommandMenuProps) {
   if (!open) return null
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [onClose])
 
   return (
     <div
