@@ -3,8 +3,7 @@
 import { Command } from "cmdk"
 import { type ElementType } from "../types/textEditor"
 import { Bot } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 interface CommandMenuProps {
   open: boolean
@@ -15,9 +14,6 @@ interface CommandMenuProps {
 }
 
 export function CommandMenu({ open, onClose, onSelect, onPersonioAI, position }: CommandMenuProps) {
-  const [search, setSearch] = useState("")
-  const router = useRouter()
-  
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
