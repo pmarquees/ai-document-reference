@@ -11,6 +11,7 @@ import Highlight from '@tiptap/extension-highlight'
 import Underline from '@tiptap/extension-underline'
 import { DocumentsPanel } from "./DocumentsPanel"
 import { EditorToolbar } from "./EditorToolbar"
+import type { TextEditorElement } from "../types/textEditor"
 
 interface EditingAreaProps {
   elements: TextEditorElement[]
