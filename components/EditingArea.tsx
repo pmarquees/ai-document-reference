@@ -13,15 +13,21 @@ import { DocumentsPanel } from "./DocumentsPanel"
 import { EditorToolbar } from "./EditorToolbar"
 
 interface EditingAreaProps {
+  elements: TextEditorElement[]
+  updateElement: (id: string, content: string) => void
+  deleteElement: (id: string) => void
+  onShowCommandMenu: (x: number, y: number) => void
   editableContent: string
   onEditableContentChange: (content: string) => void
-  onShowCommandMenu: (x: number, y: number) => void
 }
 
 export function EditingArea({
-  editableContent,
-  onEditableContentChange,
+  elements,
+  updateElement,
+  deleteElement,
   onShowCommandMenu,
+  editableContent,
+  onEditableContentChange
 }: EditingAreaProps) {
   const editor = useEditor({
     extensions: [
