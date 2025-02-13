@@ -13,7 +13,6 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { DocumentTitle } from "./DocumentTitle"
 import { EditingArea } from "./EditingArea"
-import { InsertPanel } from "./InsertPanel"
 import { CommandMenu } from "./CommandMenu"
 import { AIChat } from "./AIChat"
 import type { ElementType, TextEditorElement } from "../types/textEditor"
@@ -124,7 +123,6 @@ export function TextEditor() {
             />
           </SortableContext>
         </div>
-        <InsertPanel onInsert={addElement} />
 
         <Button
           variant="outline"
