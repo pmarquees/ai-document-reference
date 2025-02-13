@@ -12,7 +12,27 @@ interface ElementRendererProps {
 
 export function ElementRenderer({ element, updateElement, deleteElement }: ElementRendererProps) {
   const renderElement = () => {
-    switch (element.type) {
+    switch (element.type.type) {
+      case 'heading':
+        return (
+          <h2 className="text-2xl font-bold">
+            {element.content}
+          </h2>
+        )
+      case 'paragraph':
+        return (
+          <p className="text-base">
+            {element.content}
+          </p>
+        )
+      case 'list':
+        return (
+          <ul className="list-disc list-inside">
+            {element.content.split('\n').map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        )
       case "text":
         return (
           <Textarea
@@ -72,7 +92,7 @@ export function ElementRenderer({ element, updateElement, deleteElement }: Eleme
         )
       // Implement other element types here
       default:
-        return <div>Unsupported element type: {element.type}</div>
+        return <div>Unsupported element type: {element.type.type}</div>
     }
   }
 
