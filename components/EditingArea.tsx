@@ -1,67 +1,65 @@
 "use client"
 
-import type React from "react"
-import { useRef, useCallback, useEffect } from "react"
-import { useSortable } from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
-import type { TextEditorElement } from "../types/textEditor"
-import { ElementRenderer } from "./ElementRenderer"
+import { useCallback, useEffect } from "react"
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import TextAlign from '@tiptap/extension-text-align'
+import FontFamily from '@tiptap/extension-font-family'
+import TextStyle from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
+import Highlight from '@tiptap/extension-highlight'
+import Underline from '@tiptap/extension-underline'
 import { DocumentsPanel } from "./DocumentsPanel"
+import { EditorToolbar } from "./EditorToolbar"
 
 interface EditingAreaProps {
-  elements: TextEditorElement[]
-  updateElement: (id: string, content: string) => void
-  deleteElement: (id: string) => void
-  onShowCommandMenu: (x: number, y: number) => void
   editableContent: string
   onEditableContentChange: (content: string) => void
+  onShowCommandMenu: (x: number, y: number) => void
 }
 
 export function EditingArea({
-  elements,
-  updateElement,
-  deleteElement,
-  onShowCommandMenu,
   editableContent,
   onEditableContentChange,
+  onShowCommandMenu,
 }: EditingAreaProps) {
-  const editableRef = useRef<HTMLDivElement>(null)
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      FontFamily,
+      TextStyle,
+      Color,
+      Highlight,
+      Underline,
+    ],
+    content: editableContent,
+    onUpdate: ({ editor }) => {
+      onEditableContentChange(editor.getHTML())
+    },
+    editorProps: {
+      handleKeyDown: (view, event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key === "/") {
+          const { from } = view.state.selection
+          const coords = view.coordsAtPos(from)
+          onShowCommandMenu(coords.left, coords.bottom)
+          return true
+        }
+        return false
+      },
+    },
+  })
 
   useEffect(() => {
-    if (editableRef.current) {
-      editableRef.current.textContent = editableContent
+    if (editor && editor.getHTML() !== editableContent) {
+      editor.commands.setContent(editableContent)
     }
-  }, [editableContent])
-
-  const handleInput = useCallback(() => {
-    if (editableRef.current) {
-      onEditableContentChange(editableRef.current.textContent || '')
-    }
-  }, [onEditableContentChange])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "/") {
-        e.preventDefault()
-        const selection = window.getSelection()
-        const range = selection?.getRangeAt(0)
-        if (range) {
-          const rect = range.getBoundingClientRect()
-          onShowCommandMenu(rect.left, rect.bottom)
-        }
-      }
-    },
-    [onShowCommandMenu],
-  )
-
-  const handleContainerClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      editableRef.current?.focus()
-    }
-  }
+  }, [editor, editableContent])
 
   const handleNewDocument = useCallback(() => {
-    onEditableContentChange("")  // Clear the content
+    onEditableContentChange("")
   }, [onEditableContentChange])
 
   const handleLoadDocument = useCallback((content: string) => {
@@ -70,53 +68,20 @@ export function EditingArea({
 
   return (
     <div className="flex flex-1">
-      <div 
-        className="flex-1 overflow-y-auto p-4" 
-        onClick={handleContainerClick}
-      >
-        {elements.map((element) => (
-          <SortableElement
-            key={element.id}
-            element={element}
-            updateElement={updateElement}
-            deleteElement={deleteElement}
+      <div className="flex-1 flex flex-col">
+        <EditorToolbar editor={editor} />
+        <div className="flex-1 overflow-y-auto p-4">
+          <EditorContent 
+            editor={editor} 
+            className="min-h-[1em] focus:outline-none prose max-w-none"
           />
-        ))}
-        <div
-          ref={editableRef}
-          contentEditable
-          suppressContentEditableWarning
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
-          className="min-h-[1em] focus:outline-none cursor-text whitespace-pre-wrap"
-        />
+        </div>
       </div>
       <DocumentsPanel 
         currentContent={editableContent} 
         onNewDocument={handleNewDocument}
         onLoadDocument={handleLoadDocument}
       />
-    </div>
-  )
-}
-
-interface SortableElementProps {
-  element: TextEditorElement
-  updateElement: (id: string, content: string) => void
-  deleteElement: (id: string) => void
-}
-
-function SortableElement({ element, updateElement, deleteElement }: SortableElementProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: element.id })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  }
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <ElementRenderer element={element} updateElement={updateElement} deleteElement={deleteElement} />
     </div>
   )
 }
