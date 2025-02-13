@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   DndContext,
   type DragEndEvent,
@@ -18,6 +18,15 @@ import { CommandMenu } from "./CommandMenu"
 import { AIChat } from "./AIChat"
 import type { ElementType, TextEditorElement } from "../types/textEditor"
 
+const STORAGE_KEY = 'ai-text-editor-documents'
+
+interface Document {
+  id: string
+  title: string
+  content: string
+  lastModified: number
+}
+
 export function TextEditor() {
   const [elements, setElements] = useState<TextEditorElement[]>([])  // Initialize as empty array
   const [documentTitle, setDocumentTitle] = useState("Untitled Document")
@@ -25,6 +34,7 @@ export function TextEditor() {
   const [commandMenuPosition, setCommandMenuPosition] = useState({ x: 0, y: 0 })
   const [aiChatOpen, setAiChatOpen] = useState(false)
   const [editableContent, setEditableContent] = useState("")
+  const [documents, setDocuments] = useState<Document[]>([])
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -32,6 +42,14 @@ export function TextEditor() {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   )
+
+  // Load documents on mount
+  useEffect(() => {
+    const savedDocs = localStorage.getItem(STORAGE_KEY)
+    if (savedDocs) {
+      setDocuments(JSON.parse(savedDocs))
+    }
+  }, [])
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -118,7 +136,13 @@ export function TextEditor() {
         />
       )}
 
-      {aiChatOpen && <AIChat onClose={() => setAiChatOpen(false)} onInsertText={handleInsertAIText} />}
+      {aiChatOpen && (
+        <AIChat 
+          onClose={() => setAiChatOpen(false)} 
+          onInsertText={handleInsertAIText} 
+          documents={documents}
+        />
+      )}
     </DndContext>
   )
 }

@@ -42,6 +42,7 @@ export function EditingArea({
     editorProps: {
       handleKeyDown: (view, event) => {
         if ((event.metaKey || event.ctrlKey) && event.key === "/") {
+          event.preventDefault()
           const { from } = view.state.selection
           const coords = view.coordsAtPos(from)
           onShowCommandMenu(coords.left, coords.bottom)
@@ -68,7 +69,7 @@ export function EditingArea({
 
   return (
     <div className="flex flex-1">
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col max-h-[calc(100vh-4rem)]">
         <EditorToolbar editor={editor} />
         <div className="flex-1 overflow-y-auto p-4">
           <EditorContent 

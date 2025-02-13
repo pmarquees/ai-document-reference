@@ -1,97 +1,65 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import type { ElementType } from "../types/textEditor"
-import { Type, Heading2, FileText, Sparkles } from "lucide-react"
+import { Command } from "cmdk"
+import { type ElementType } from "../types/textEditor"
+import { Bot } from "lucide-react"
 
 interface CommandMenuProps {
   open: boolean
   onClose: () => void
-  onStyleSelect: (style: 'text' | 'header' | 'subheader') => void
+  onSelect: (type: ElementType) => void
   onPersonioAI: () => void
   position: { x: number; y: number }
 }
 
-const styles = [
-  {
-    heading: "Styles",
-    items: [
-      { type: 'text' as const, label: "Normal Text", icon: Type },
-      { type: 'header' as const, label: "Header", icon: Heading2 },
-      { type: 'subheader' as const, label: "Subheader", icon: Heading2 },
-    ],
-  }
-]
-
-export function CommandMenu({ open, onClose, onStyleSelect, onPersonioAI, position }: CommandMenuProps) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClose()
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [onClose])
-
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose()
-      }
-    }
-
-    document.addEventListener("keydown", handleEscape)
-    return () => {
-      document.removeEventListener("keydown", handleEscape)
-    }
-  }, [onClose])
-
+export function CommandMenu({ open, onClose, onSelect, onPersonioAI, position }: CommandMenuProps) {
   if (!open) return null
 
   return (
     <div
-      ref={ref}
-      className="fixed z-50"
+      className="fixed z-50 bg-background border rounded-lg shadow-lg overflow-hidden w-64"
       style={{
-        top: `${position.y}px`,
-        left: `${position.x}px`,
+        top: position.y,
+        left: position.x,
       }}
     >
-      <Command className="rounded-lg border shadow-md w-[280px] bg-white">
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup>
-            <CommandItem className="flex items-center gap-2 cursor-pointer" onSelect={onPersonioAI}>
-              <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-semibold">PersonioAI</span>
-            </CommandItem>
-          </CommandGroup>
-          {styles.map((group) => (
-            <CommandGroup key={group.heading} heading={group.heading}>
-              {group.items.map((item) => (
-                <CommandItem
-                  key={item.type}
-                  onSelect={() => {
-                    onStyleSelect(item.type)
-                    onClose()
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ))}
-        </CommandList>
+      <Command className="border-none [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground">
+        <Command.Input
+          autoFocus
+          placeholder="Type a command..."
+          className="w-full border-none focus:outline-none px-3 py-2"
+        />
+        <Command.List>
+          <Command.Group heading="Insert">
+            <Command.Item
+              onSelect={() => onSelect("heading")}
+              className="px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer"
+            >
+              Add Heading
+            </Command.Item>
+            <Command.Item
+              onSelect={() => onSelect("paragraph")}
+              className="px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer"
+            >
+              Add Paragraph
+            </Command.Item>
+            <Command.Item
+              onSelect={() => onSelect("list")}
+              className="px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer"
+            >
+              Add List
+            </Command.Item>
+          </Command.Group>
+          <Command.Group heading="AI">
+            <Command.Item
+              onSelect={onPersonioAI}
+              className="px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer flex items-center gap-2"
+            >
+              <Bot className="w-4 h-4" />
+              PersonioAI
+            </Command.Item>
+          </Command.Group>
+        </Command.List>
       </Command>
     </div>
   )
