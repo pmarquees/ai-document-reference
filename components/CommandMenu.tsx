@@ -3,7 +3,8 @@
 import { Command } from "cmdk"
 import { type ElementType } from "../types/textEditor"
 import { Bot } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 interface CommandMenuProps {
   open: boolean
@@ -14,17 +15,22 @@ interface CommandMenuProps {
 }
 
 export function CommandMenu({ open, onClose, onSelect, onPersonioAI, position }: CommandMenuProps) {
-  if (!open) return null
-
+  const [search, setSearch] = useState("")
+  const router = useRouter()
+  
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
         onClose()
       }
     }
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
+
+    document.addEventListener("keydown", down)
+    return () => document.removeEventListener("keydown", down)
   }, [onClose])
+
+  if (!open) return null
 
   return (
     <div
