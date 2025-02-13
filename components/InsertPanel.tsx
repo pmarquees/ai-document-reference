@@ -6,14 +6,16 @@ import { CSS } from "@dnd-kit/utilities"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import type { ElementType } from "../types/textEditor"
-import { Image, Type, Heading2, FileText } from "lucide-react"
+import { Image, Type, Heading2, FileText, List } from "lucide-react"
 
 const elements: { type: ElementType; label: string; icon: React.ElementType }[] = [
-  { type: "text", label: "Text", icon: Type },
-  { type: "header", label: "Header", icon: Heading2 },
-  { type: "subheader", label: "Subheader", icon: Heading2 },
-  { type: "image", label: "Image", icon: Image },
-  { type: "file", label: "File", icon: FileText },
+  { type: { type: "text" }, label: "Text", icon: Type },
+  { type: { type: "header" }, label: "Header", icon: Heading2 },
+  { type: { type: "subheader" }, label: "Subheader", icon: Heading2 },
+  { type: { type: "image" }, label: "Image", icon: Image },
+  { type: { type: "heading" }, label: "Heading", icon: Heading2 },
+  { type: { type: "paragraph" }, label: "Paragraph", icon: Type },
+  { type: { type: "list" }, label: "List", icon: List }
 ]
 
 function DraggableElement({ 
