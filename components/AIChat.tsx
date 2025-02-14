@@ -128,7 +128,7 @@ export function AIChat({ onClose, onInsertText, documents }: AIChatProps) {
             <CardHeader className="border-b border-zinc-200 dark:border-zinc-700 shrink-0">
               <CardTitle className="flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
                 <Sparkles className="h-5 w-5 text-purple-500" />
-                PersonioAI
+                Personio AI
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 overflow-y-auto p-4">
