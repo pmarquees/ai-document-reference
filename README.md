@@ -10,7 +10,7 @@
 # AI Document Reference
 
 An intelligent document editor built with Next.js that combines rich text editing capabilities with AI-powered assistance. This project aims to make document creation and editing more efficient by providing smart suggestions and AI-powered content generation.
-
+Nice
 ## Features
 
 - 🖊 Rich Text Editor
