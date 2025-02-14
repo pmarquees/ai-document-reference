@@ -19,6 +19,8 @@ import type { ElementType, TextEditorElement } from "../types/textEditor"
 import { HelpCircle } from "lucide-react"
 import { HelpModal } from "./HelpModal"
 import { Button } from "@/components/ui/button"
+import { motion } from "framer-motion"
+import { OnboardingModal } from "./OnboardingModal"
 
 const STORAGE_KEY = 'ai-text-editor-documents'
 
@@ -38,6 +40,7 @@ export function TextEditor() {
   const [editableContent, setEditableContent] = useState("")
   const [documents, setDocuments] = useState<Document[]>([])
   const [helpModalOpen, setHelpModalOpen] = useState(false)
+  const [onboardingOpen, setOnboardingOpen] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -52,6 +55,19 @@ export function TextEditor() {
     if (savedDocs) {
       setDocuments(JSON.parse(savedDocs))
     }
+  }, [])
+
+  // Add this useEffect for the keyboard shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setAiChatOpen(true)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -109,9 +125,17 @@ export function TextEditor() {
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <div className="flex h-screen relative">
+      <div className="flex h-screen relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800">
         <div className="flex-1 flex flex-col overflow-hidden">
-          <DocumentTitle title={documentTitle} onTitleChange={setDocumentTitle} />
+          <motion.h1 
+            className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500 p-6 cursor-pointer hover:opacity-80 transition-opacity"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            onClick={() => setOnboardingOpen(true)}
+          >
+            P&D Docs
+          </motion.h1>
           <SortableContext items={elements} strategy={verticalListSortingStrategy}>
             <EditingArea
               elements={elements}
@@ -124,14 +148,20 @@ export function TextEditor() {
           </SortableContext>
         </div>
 
-        <Button
-          variant="outline"
-          size="icon"
-          className="fixed bottom-4 right-4 rounded-full"
-          onClick={() => setHelpModalOpen(true)}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          whileHover={{ scale: 1.1 }}
         >
-          <HelpCircle className="h-5 w-5" />
-        </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="fixed bottom-4 right-4 rounded-full shadow-lg hover:shadow-xl transition-shadow bg-white/50 backdrop-blur-sm dark:bg-zinc-800/50"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            <HelpCircle className="h-5 w-5" />
+          </Button>
+        </motion.div>
 
         <HelpModal 
           open={helpModalOpen} 
@@ -158,6 +188,11 @@ export function TextEditor() {
             documents={documents}
           />
         )}
+
+        <OnboardingModal 
+          open={onboardingOpen}
+          onClose={() => setOnboardingOpen(false)}
+        />
       </div>
     </DndContext>
   )

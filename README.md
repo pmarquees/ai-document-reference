@@ -72,6 +72,7 @@ OPENAI_API_KEY=your_api_key_here
 ## Usage
 
 - Use `Cmd/Ctrl + /` to open the command menu
+- Use `Cmd/Ctrl + K` to open the AI chat
 - Click the AI icon to get AI-powered suggestions
 - Drag and drop elements to reorder them
 - Use the toolbar for text formatting

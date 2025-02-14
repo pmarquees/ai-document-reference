@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
@@ -13,6 +13,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface Document {
   id: string
@@ -35,6 +36,10 @@ export function AIChat({ onClose, onInsertText, documents }: AIChatProps) {
   const [cursorPosition, setCursorPosition] = useState(0)
   const [suggestionQuery, setSuggestionQuery] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value
@@ -105,69 +110,111 @@ export function AIChat({ onClose, onInsertText, documents }: AIChatProps) {
   }
 
   return (
-    <Card className="w-[400px] max-h-[80vh] flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
-          PersonioAI
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1 overflow-hidden">
-        <form onSubmit={handleSubmit} className="relative h-full flex flex-col">
-          <Input
-            ref={inputRef}
-            value={prompt}
-            onChange={handleInputChange}
-            placeholder="Enter your prompt... Use @ to reference documents"
-            className="mb-2"
-          />
-          {showSuggestions && documents.length > 0 && (
-            <div className="absolute left-0 right-0 mt-1 bg-popover border rounded-md shadow-md z-50 max-h-[200px] overflow-y-auto">
-              <Command>
-                <CommandList>
-                  <CommandEmpty>No documents found</CommandEmpty>
-                  <CommandGroup heading="Documents">
-                    {documents
-                      .filter(doc => 
-                        doc.title.toLowerCase().includes(suggestionQuery.toLowerCase())
-                      )
-                      .map(doc => (
-                        <button
-                          key={doc.id}
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleDocumentSelect(doc)
-                          }}
-                          className="w-full text-left px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                        >
-                          {doc.title}
-                        </button>
-                      ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </div>
-          )}
-          <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? "Generating..." : "Generate"}
-          </Button>
-          {response && (
-            <div className="mt-4 flex-1 overflow-y-auto">
-              <h3 className="font-semibold mb-2">Response:</h3>
-              <p className="text-sm whitespace-pre-wrap">{response}</p>
-            </div>
-          )}
-        </form>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={onClose}>
-          Close
-        </Button>
-        <Button onClick={() => onInsertText(response)} disabled={!response}>
-          Insert Text
-        </Button>
-      </CardFooter>
-    </Card>
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          transition={{ type: "spring", damping: 20, stiffness: 300 }}
+          className="w-full max-w-xl mx-4"
+        >
+          <Card className="h-[500px] flex flex-col shadow-2xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-700">
+            <CardHeader className="border-b border-zinc-200 dark:border-zinc-700 shrink-0">
+              <CardTitle className="flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
+                <Sparkles className="h-5 w-5 text-purple-500" />
+                PersonioAI
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-y-auto p-4">
+              <form onSubmit={handleSubmit} className="h-full flex flex-col gap-4">
+                <div className="shrink-0">
+                  <Input
+                    ref={inputRef}
+                    value={prompt}
+                    onChange={handleInputChange}
+                    placeholder="Enter your prompt... Use @ to reference documents"
+                    className="bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-purple-500"
+                  />
+                  {showSuggestions && documents.length > 0 && (
+                    <div className="absolute mt-1 w-full bg-popover border rounded-md shadow-md z-50 max-h-[200px] overflow-y-auto">
+                      <Command>
+                        <CommandList>
+                          <CommandEmpty>No documents found</CommandEmpty>
+                          <CommandGroup heading="Documents">
+                            {documents
+                              .filter(doc => 
+                                doc.title.toLowerCase().includes(suggestionQuery.toLowerCase())
+                              )
+                              .map(doc => (
+                                <button
+                                  key={doc.id}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    handleDocumentSelect(doc)
+                                  }}
+                                  className="w-full text-left px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                                >
+                                  {doc.title}
+                                </button>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </div>
+                  )}
+                </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="shrink-0"
+                >
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all"
+                  >
+                    {isLoading ? "Generating..." : "Generate"}
+                  </Button>
+                </motion.div>
+                {response && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex-1 overflow-y-auto"
+                  >
+                    <h3 className="font-semibold mb-2">Response:</h3>
+                    <p className="text-sm whitespace-pre-wrap">{response}</p>
+                  </motion.div>
+                )}
+              </form>
+            </CardContent>
+            <CardFooter className="flex justify-between border-t border-zinc-200 dark:border-zinc-700 p-4 shrink-0">
+              <Button 
+                variant="outline" 
+                onClick={onClose}
+                className="hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                Close
+              </Button>
+              <Button
+                onClick={() => onInsertText(response)}
+                disabled={!response}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              >
+                Insert Text
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   )
 }
 
